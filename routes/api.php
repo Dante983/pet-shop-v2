@@ -16,6 +16,11 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('user')->group(function () {
+        Route::get('/', [UserController::class, 'profile']);
+        Route::delete('/', [UserController::class, 'delete']);
         Route::post('create', [UserController::class, 'create']);
+        Route::post('login', [UserController::class, 'login']);
+        Route::get('logout', [UserController::class, 'logout']);
+        Route::put('edit', [UserController::class, 'edit']);
     });
 });

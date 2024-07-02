@@ -47,4 +47,10 @@ Route::prefix('v1')->group(function () {
         Route::put('{uuid}', [ProductController::class, 'update']);
         Route::delete('{uuid}', [ProductController::class, 'destroy']);
     });
+
+    Route::prefix('main')->group(function () {
+        Route::get('blog', [MainPageController::class, 'listBlogs']);
+        Route::get('blog/{uuid}', [MainPageController::class, 'showBlog']);
+        Route::get('promotions', [MainPageController::class, 'listPromotions']);
+    });
 });

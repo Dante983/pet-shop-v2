@@ -39,4 +39,12 @@ Route::prefix('v1')->group(function () {
         Route::put('{uuid}', [CategoryController::class, 'update']);
         Route::delete('{uuid}', [CategoryController::class, 'destroy']);
     });
+
+    Route::prefix('products')->group(function () {
+        Route::get('/', [ProductController::class, 'index']);
+        Route::post('create', [ProductController::class, 'store']);
+        Route::get('{uuid}', [ProductController::class, 'show']);
+        Route::put('{uuid}', [ProductController::class, 'update']);
+        Route::delete('{uuid}', [ProductController::class, 'destroy']);
+    });
 });

@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('admin')->group(function () {
@@ -22,5 +22,13 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [UserController::class, 'login']);
         Route::get('logout', [UserController::class, 'logout']);
         Route::put('edit', [UserController::class, 'edit']);
+    });
+
+    Route::prefix('brands')->group(function () {
+        Route::get('/', [BrandController::class, 'index']);
+        Route::post('create', [BrandController::class, 'store']);
+        Route::get('{uuid}', [BrandController::class, 'show']);
+        Route::put('{uuid}', [BrandController::class, 'update']);
+        Route::delete('{uuid}', [BrandController::class, 'destroy']);
     });
 });

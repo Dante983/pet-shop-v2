@@ -1,0 +1,32 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Promotion;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
+class PromotionFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Promotion::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'uuid' => Str::uuid(),
+            'title' => $this->faker->sentence,
+            'content' => $this->faker->paragraph,
+            'metadata' => ['valid_from' => $this->faker->date('Y-m-d'), 'valid_to' => $this->faker->date('Y-m-d')],
+        ];
+    }
+}

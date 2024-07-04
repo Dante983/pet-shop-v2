@@ -9,6 +9,9 @@ use Closure;
 use DateTimeImmutable;
 use Exception;
 
+/**
+ * @package App\Http\Middleware
+ */
 class ValidateJwtToken
 {
     /**
@@ -19,7 +22,6 @@ class ValidateJwtToken
     public function handle($request, Closure $next)
     {
         $token = $request->bearerToken();
-
         $key = substr(config('app.key'), 7);
 
         if (!$token) {
@@ -29,7 +31,6 @@ class ValidateJwtToken
         try {
             $parser = new Parser(new JoseEncoder());
             $parsedToken = $parser->parse($token);
-            // $parsedToken = (new Parser())->parse($token);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Invalid token'], 401);
         }

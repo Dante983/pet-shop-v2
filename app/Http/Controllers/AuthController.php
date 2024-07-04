@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Token\Builder;
 use DateTimeImmutable;
 
 class AuthController extends Controller
@@ -36,7 +36,7 @@ class AuthController extends Controller
             ->withHeader('foo', 'bar')
             // Builds a new token
             ->getToken($algorithm, $signingKey);
-
+        // dd($token->toString());
         return $token->toString();
     }
 }

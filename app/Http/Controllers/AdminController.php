@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\File;
+use App\Models\JWTToken;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,9 @@ use Illuminate\Support\Str;
 use Lcobucci\JWT\Builder;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package App\Http\Controllers
+ */
 class AdminController extends Controller
 {
     public function create(Request $request)
@@ -76,40 +80,43 @@ class AdminController extends Controller
             if (!$user || !Hash::check($validatedData['password'], $user->password)) {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
 
             $user->update([
                 'last_logged_in' => Carbon::now(),
             ]);
 
-            // Generate user token here
-            // $token = $this->issueToken($user->id);
-
             $tokenController = new AuthController();
             $token = $tokenController->issueToken($user->id);
-            dd($token);
+
+            JwtToken::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'unique_id' => $token,
+                    'token_title' => 'User Login',
+                    'restrictions' => json_encode([]),
+                    'permissions' => json_encode([]),
+                    'expires_at' => now()->addHours(1),
+                    'last_used_at' => now(),
+                    'refreshed_at' => now(),
+                ]
+            );
+
             return response()->json([
                 'message' => 'Successfully logged in.',
                 'token' => $token,
             ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return response()->json([
-            'message' => 'Invalid email or password.',
-        ], 401);
     }
 
     public function logout(Request $request)
     {
         try {
-            $request->user()->currentAccessToken()->delete();
+            $token = JwtToken::where('user_id', $request->user()->id)->first();
+            if ($token) {
+                $token->delete();
+            }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -117,15 +124,19 @@ class AdminController extends Controller
         return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
-    public function userListing()
+    public function userListing(Request $request)
     {
         try {
-            $users = User::where('is_admin', false)->paginate(10);
+            dd($request->user());
+            if ($request->user()->is_admin) {
+                $users = User::where('is_admin', false)->paginate(10);
+                return response()->json($users, 200);
+            } else {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return response()->json($users, 200);
     }
 
     public function userEdit(Request $request, $uuid)

@@ -1,7 +1,12 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\MainPageController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\ValidateJwtToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -9,10 +14,12 @@ Route::prefix('v1')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::post('create', [AdminController::class, 'create']);
         Route::post('login', [AdminController::class, 'login']);
-        Route::get('logout', [AdminController::class, 'logout']);
-        Route::get('user-listing', [AdminController::class, 'userListing']);
-        Route::put('user-edit/{uuid}', [AdminController::class, 'userEdit']);
-        Route::delete('user-delete/{uuid}', [AdminController::class, 'userDelete']);
+        Route::middleware([ValidateJwtToken::class])->group(function () {
+            Route::get('logout', [AdminController::class, 'logout']);
+            Route::get('user-listing', [AdminController::class, 'userListing']);
+            Route::put('user-edit/{uuid}', [AdminController::class, 'userEdit']);
+            Route::delete('user-delete/{uuid}', [AdminController::class, 'userDelete']);
+        });
     });
 
     Route::prefix('user')->group(function () {
@@ -33,11 +40,11 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('categories')->group(function () {
-        Route::get('/', [CategoryController::class, 'index']);
-        Route::post('create', [CategoryController::class, 'store']);
-        Route::get('{uuid}', [CategoryController::class, 'show']);
-        Route::put('{uuid}', [CategoryController::class, 'update']);
-        Route::delete('{uuid}', [CategoryController::class, 'destroy']);
+        Route::get('/', [CategoriesController::class, 'index']);
+        Route::post('create', [CategoriesController::class, 'store']);
+        Route::get('{uuid}', [CategoriesController::class, 'show']);
+        Route::put('{uuid}', [CategoriesController::class, 'update']);
+        Route::delete('{uuid}', [CategoriesController::class, 'destroy']);
     });
 
     Route::prefix('products')->group(function () {

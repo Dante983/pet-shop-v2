@@ -78,12 +78,12 @@ class UserController extends Controller
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
 
-            $token = $user->createToken('auth_token')->plainTextToken;
+            // $token = $user->createToken('auth_token')->plainTextToken;
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
 
-        return response()->json(['token' => $token], 200);
+        return response()->json(['token' => 'logged in'], 200);
     }
 
     public function logout(Request $request)

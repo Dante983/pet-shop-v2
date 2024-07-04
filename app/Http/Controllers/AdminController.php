@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\File;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Lcobucci\JWT\Builder;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdminController extends Controller
 {
     public function create(Request $request)
     {
-
         try {
             $validatedData = $request->validate([
                 'first_name' => 'required|string|max:255',
@@ -65,7 +68,7 @@ class AdminController extends Controller
         try {
             $validatedData = $request->validate([
                 'email' => 'required|string|email|max:255',
-                'password' => 'required|string|min:8',
+                'password' => 'required|string',
             ]);
 
             $user = User::where('email', $validatedData['email'])->first();
@@ -77,7 +80,30 @@ class AdminController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
 
-        return response()->json(['success' => 'true'], 200);
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            $user->update([
+                'last_logged_in' => Carbon::now(),
+            ]);
+
+            // Generate user token here
+            // $token = $this->issueToken($user->id);
+
+            $tokenController = new AuthController();
+            $token = $tokenController->issueToken($user->id);
+            dd($token);
+            return response()->json([
+                'message' => 'Successfully logged in.',
+                'token' => $token,
+            ], Response::HTTP_OK);
+        }
+
+        return response()->json([
+            'message' => 'Invalid email or password.',
+        ], 401);
     }
 
     public function logout(Request $request)

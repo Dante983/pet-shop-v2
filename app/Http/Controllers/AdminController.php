@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\File;
-use App\Models\JWTToken;
+use App\Models\JwtToken;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Lcobucci\JWT\Builder;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -85,8 +84,7 @@ class AdminController extends Controller
                 'last_logged_in' => Carbon::now(),
             ]);
 
-            $tokenController = new AuthController();
-            $token = $tokenController->issueToken($user->id);
+            $token = 'asd';
 
             JwtToken::updateOrCreate(
                 ['user_id' => $user->id],
@@ -127,7 +125,6 @@ class AdminController extends Controller
     public function userListing(Request $request)
     {
         try {
-            dd($request->user());
             if ($request->user()->is_admin) {
                 $users = User::where('is_admin', false)->paginate(10);
                 return response()->json($users, 200);

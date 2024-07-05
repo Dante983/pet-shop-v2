@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('jwt_tokens', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('unique_id');
+            $table->longText('unique_id');
             $table->string('token_title');
             $table->json('restrictions')->nullable();
             $table->json('permissions')->nullable();

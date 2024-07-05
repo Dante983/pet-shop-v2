@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Handlers\Admin\AuthHandler;
 use App\Models\File;
 use App\Models\JwtToken;
 use App\Models\User;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @package App\Http\Controllers
  */
-class AdminController extends Controller
+class AdminController extends APIController
 {
     public function create(Request $request)
     {
@@ -59,6 +60,18 @@ class AdminController extends Controller
             }
 
             $user->save();
+
+            if ($user) {
+                $authHandler = new AuthHandler;
+                $token = $authHandler->GenerateToken($user);
+
+                $success = [
+                    'user' => $user,
+                    'token' => $token,
+                ];
+
+                return $this->sendResponse($success, 'user registered successfully', 201);
+            }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -84,25 +97,32 @@ class AdminController extends Controller
                 'last_logged_in' => Carbon::now(),
             ]);
 
-            $token = 'asd';
+            $remember = $request->remember;
 
-            JwtToken::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'unique_id' => $token,
-                    'token_title' => 'User Login',
-                    'restrictions' => json_encode([]),
-                    'permissions' => json_encode([]),
-                    'expires_at' => now()->addHours(1),
-                    'last_used_at' => now(),
-                    'refreshed_at' => now(),
-                ]
-            );
+            if (Auth::check($validatedData, $remember)) {
+                $user = Auth::user();
+                dd($user);
+                $authHandler = new AuthHandler;
+                $token = $authHandler->GenerateToken($user);
 
-            return response()->json([
-                'message' => 'Successfully logged in.',
-                'token' => $token,
-            ], Response::HTTP_OK);
+                $success = ['user' => $user, 'token' => $token];
+
+                JwtToken::updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'unique_id' => $token,
+                        'token_title' => 'User Login',
+                        'restrictions' => json_encode([]),
+                        'permissions' => json_encode([]),
+                        'expires_at' => now()->addHours(1),
+                        'last_used_at' => now(),
+                        'refreshed_at' => now(),
+                    ]
+                );
+                return $this->sendResponse($success, 'Logged In');
+            } else {
+                return $this->sendError('Unauthorized', ['error' => 'Invalid Login credentials'], 401);
+            }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

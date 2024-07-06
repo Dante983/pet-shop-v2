@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Handlers\Admin\AuthHandler;
+use App\Handlers\AuthHandler;
 use App\Models\File;
 use App\Models\JwtToken;
 use App\Models\User;
@@ -97,32 +97,25 @@ class AdminController extends APIController
                 'last_logged_in' => Carbon::now(),
             ]);
 
-            $remember = $request->remember;
+            $authHandler = new AuthHandler;
+            $token = $authHandler->GenerateToken($user);
 
-            if (Auth::check($validatedData, $remember)) {
-                $user = Auth::user();
-                dd($user);
-                $authHandler = new AuthHandler;
-                $token = $authHandler->GenerateToken($user);
+            $success = ['user' => $user, 'token' => $token];
 
-                $success = ['user' => $user, 'token' => $token];
+            JwtToken::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'unique_id' => $token,
+                    'token_title' => 'User Login',
+                    'restrictions' => json_encode([]),
+                    'permissions' => json_encode([]),
+                    'expires_at' => now()->addHours(1),
+                    'last_used_at' => now(),
+                    'refreshed_at' => now(),
+                ]
+            );
 
-                JwtToken::updateOrCreate(
-                    ['user_id' => $user->id],
-                    [
-                        'unique_id' => $token,
-                        'token_title' => 'User Login',
-                        'restrictions' => json_encode([]),
-                        'permissions' => json_encode([]),
-                        'expires_at' => now()->addHours(1),
-                        'last_used_at' => now(),
-                        'refreshed_at' => now(),
-                    ]
-                );
-                return $this->sendResponse($success, 'Logged In');
-            } else {
-                return $this->sendError('Unauthorized', ['error' => 'Invalid Login credentials'], 401);
-            }
+            return $this->sendResponse($success, 'Logged In');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

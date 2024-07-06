@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Handlers\Admin;
+namespace App\Handlers;
 
 use Firebase\JWT\JWT;
 use DateTimeImmutable;
@@ -17,7 +17,7 @@ class AuthHandler
         $issuedAt = new DateTimeImmutable();
         $expire = $issuedAt->modify('+6 minutes')->getTimestamp();  // Add 60 seconds
         $serverName = 'your.pbn.name';
-        $userID = $user->id;  // Retrieved from filtered POST data
+        $userID = $user->id;
 
         // Create the token as an array
         $data = [
@@ -30,12 +30,11 @@ class AuthHandler
                 'userID' => $userID,  // User name
             ]
         ];
-        dd($data);
-        // Encode the array to a JWT string.
+
         $token = JWT::encode(
-            $data,  // Data to be encoded in the JWT
-            $secretKey,  // The signing key
-            'HS512'  // Algorithm used to sign the token, see https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-3
+            $data,
+            $secretKey,
+            'HS512'
         );
         return $token;
     }

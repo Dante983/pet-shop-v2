@@ -25,6 +25,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('user')->group(function () {
         Route::post('login', [UserController::class, 'login']);
         Route::post('create', [UserController::class, 'create']);
+        Route::post('forgot-password', [UserController::class, 'forgotPassword']);
+        Route::post('reset-password-token', [UserController::class, 'resetPasswordToken']);
         Route::middleware('auth:api')->group(function () {
             Route::get('/', [UserController::class, 'profile']);
             Route::delete('/', [UserController::class, 'delete']);

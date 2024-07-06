@@ -6,8 +6,10 @@ use App\Handlers\AuthHandler;
 use App\Models\File;
 use App\Models\JwtToken;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,9 +30,6 @@ class UserController extends APIController
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
                 'password_confirmation' => 'required|string|same:password',
-                'address' => 'required|string',
-                'phone_number' => 'required|string|max:15',
-                'avatar' => 'image|max:2048',
             ]);
 
             $user = new User([
@@ -40,8 +39,9 @@ class UserController extends APIController
                 'email' => $validatedData['email'],
                 'password' => Hash::make($validatedData['password']),
                 'is_admin' => false,
-                'address' => $validatedData['address'],
-                'phone_number' => $validatedData['phone_number'],
+                'address' => $request->get('address', ''),
+                'phone_number' => $request->get('phone_number', ''),
+                'is_marketing' => $request->get('is_marketing', false),
             ]);
 
             if ($request->hasFile('avatar')) {
@@ -101,7 +101,18 @@ class UserController extends APIController
             $authHandler = new AuthHandler;
             $token = $authHandler->GenerateToken($user);
 
-            $success = ['user' => $user, 'token' => $token];
+            if ($user->avatar) {
+                $avatar = File::where('uuid', $user->avatar)->first();
+                $avatar_url = url('storage/app/public/' . $avatar->path);
+            } else {
+                $avatar_url = null;
+            }
+
+            $success = [
+                'user' => $user,
+                'token' => $token,
+                'avatar_url' => $avatar_url,
+            ];
 
             JwtToken::updateOrCreate(
                 ['user_id' => $user->id],
@@ -201,5 +212,41 @@ class UserController extends APIController
         }
 
         return response()->json(['message' => 'User account deleted successfully'], 200);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        $token = Password::createToken($user);
+        $url = env('VUE_APP_BASE_URL') . '/forgot-password?token=' . $token;
+
+        return response()->json(['recovery_link' => $url, 'message' => 'Recovery link generated.']);
+    }
+
+    public function resetPasswordToken(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|string|same:password',
+        ]);
+        Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ]);
+
+                $user->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        return response()->json(['message' => 'Password reset successfully'], 200);
     }
 }

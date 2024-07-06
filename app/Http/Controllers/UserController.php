@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Handlers\AuthHandler;
 use App\Models\File;
+use App\Models\JwtToken;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
-class UserController extends Controller
+class UserController extends APIController
 {
     public function profile(Request $request)
     {
@@ -57,6 +61,18 @@ class UserController extends Controller
             }
 
             $user->save();
+
+            if ($user) {
+                $authHandler = new AuthHandler;
+                $token = $authHandler->GenerateToken($user);
+
+                $success = [
+                    'user' => $user,
+                    'token' => $token,
+                ];
+
+                return $this->sendResponse($success, 'User account created successfully', 201);
+            }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -78,23 +94,46 @@ class UserController extends Controller
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
 
-            // $token = $user->createToken('auth_token')->plainTextToken;
+            $user->update([
+                'last_logged_in' => Carbon::now(),
+            ]);
+
+            $authHandler = new AuthHandler;
+            $token = $authHandler->GenerateToken($user);
+
+            $success = ['user' => $user, 'token' => $token];
+
+            JwtToken::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'unique_id' => $token,
+                    'token_title' => 'User Login',
+                    'restrictions' => json_encode([]),
+                    'permissions' => json_encode([]),
+                    'expires_at' => now()->addHours(1),
+                    'last_used_at' => now(),
+                    'refreshed_at' => now(),
+                ]
+            );
+
+            return $this->sendResponse($success, 'Logged In');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return response()->json(['token' => 'logged in'], 200);
     }
 
     public function logout(Request $request)
     {
         try {
-            $request->user()->currentAccessToken()->delete();
+            $token = JwtToken::where('user_id', $request->user()->id)->first();
+            if ($token) {
+                $token->delete();
+            }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
 
-        return response()->json(['message' => 'User logged out successfully'], 200);
+        return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
     public function edit(Request $request)

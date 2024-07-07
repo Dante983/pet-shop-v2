@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +19,15 @@ class UserController extends APIController
 {
     public function profile(Request $request)
     {
-        return response()->json($request->user(), 200);
+        $user = $request->user();
+
+        $fileRecord = $user->avatar ? File::where('uuid', $user->avatar)->first() : null;
+        $avatarUrl = $fileRecord ? env('APP_URL') . '/storage/' . $fileRecord->path : null;
+
+        $userData = $user->toArray();
+        $userData['avatar'] = $avatarUrl;
+
+        return response()->json($userData, 200);
     }
 
     public function create(Request $request)
@@ -103,7 +112,7 @@ class UserController extends APIController
 
             if ($user->avatar) {
                 $avatar = File::where('uuid', $user->avatar)->first();
-                $avatar_url = url('storage/app/public/' . $avatar->path);
+                $avatar_url = env('APP_URL') . '/storage/' . $avatar->path;
             } else {
                 $avatar_url = null;
             }

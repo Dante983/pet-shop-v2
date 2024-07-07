@@ -25,7 +25,7 @@ class PromotionFactory extends Factory
         return [
             'uuid' => Str::uuid(),
             'title' => $this->faker->sentence,
-            'content' => $this->faker->paragraph,
+            'content' => $this->faker->text(200),
             'metadata' => ['valid_from' => $this->faker->date('Y-m-d'), 'valid_to' => $this->faker->date('Y-m-d')],
         ];
     }

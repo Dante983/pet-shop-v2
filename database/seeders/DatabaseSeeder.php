@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Brand;
 use App\Models\Categories;
+use App\Models\File;
 use App\Models\Post;
+use App\Models\Product;
 use App\Models\Promotion;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -38,5 +40,7 @@ class DatabaseSeeder extends Seeder
         Brand::factory()->count(5)->create();
         Post::factory()->count(10)->create();
         Promotion::factory()->count(3)->create();
+        File::factory()->count(10)->create();
+        Product::factory()->count(50)->create();
     }
 }

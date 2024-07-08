@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -55,7 +56,16 @@ class ProductController extends Controller
      */
     public function show($uuid)
     {
-        $product = Product::where('uuid', $uuid)->firstOrFail();
+        $product = Product::where('uuid', $uuid)->with('category')->firstOrFail();
+
+        $metadata = json_decode($product->metadata);
+        if (isset($metadata->brand)) {
+            $brand = Brand::where('uuid', $metadata->brand)->first();
+            if ($brand) {
+                $product->brand = $brand;
+            }
+        }
+
         return response()->json($product);
     }
 

@@ -22,10 +22,12 @@ class CategoriesFactory extends Factory
      */
     public function definition()
     {
+        $categoryNames = ['Dogs', 'Cats', 'Birds', 'Fish', 'Reptiles', 'Small Pets'];
+        $categoryName = $this->faker->randomElement($categoryNames);
         return [
             'uuid' => Str::uuid(),
-            'title' => $this->faker->word,
-            'slug' => $this->faker->slug,
+            'title' => $categoryName,
+            'slug' => Str::slug($categoryName) . '-' . Str::random(5),
         ];
     }
 }

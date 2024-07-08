@@ -22,9 +22,11 @@ class PromotionFactory extends Factory
      */
     public function definition()
     {
+        $promotionTitles = ['Summer Sale', 'Winter Special', 'Holiday Discounts', 'Clearance Sale', 'Weekend Special'];
+        $promotionTitle = $this->faker->randomElement($promotionTitles);
         return [
             'uuid' => Str::uuid(),
-            'title' => $this->faker->sentence,
+            'title' => $promotionTitle,
             'content' => $this->faker->text(200),
             'metadata' => ['valid_from' => $this->faker->date('Y-m-d'), 'valid_to' => $this->faker->date('Y-m-d')],
         ];

@@ -13,11 +13,37 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package App\Http\Controllers
- */
 class AdminController extends APIController
 {
+    /**
+     * @OA\Post(
+     *     path="/api/v1/admin/create",
+     *     summary="Create admin user",
+     *     tags={"Admin"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"first_name","last_name","email","password","password_confirmation","address","phone_number","avatar"},
+     *             @OA\Property(property="first_name", type="string"),
+     *             @OA\Property(property="last_name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", format="password"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password"),
+     *             @OA\Property(property="address", type="string"),
+     *             @OA\Property(property="phone_number", type="string"),
+     *             @OA\Property(property="avatar", type="string", format="binary")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Admin account created successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function create(Request $request)
     {
         try {
@@ -70,7 +96,7 @@ class AdminController extends APIController
                     'token' => $token,
                 ];
 
-                return $this->sendResponse($success, 'user registered successfully', 201);
+                return $this->sendResponse($success, 'Admin account created successfully', 201);
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -79,6 +105,29 @@ class AdminController extends APIController
         return response()->json(['message' => 'Admin account created successfully'], 201);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/admin/login",
+     *     summary="Login admin user",
+     *     tags={"Admin"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", format="password")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid credentials"
+     *     )
+     * )
+     */
     public function login(Request $request)
     {
         try {
@@ -121,6 +170,22 @@ class AdminController extends APIController
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/admin/logout",
+     *     summary="Logout admin user",
+     *     tags={"Admin"},
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logged out successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function logout(Request $request)
     {
         try {
@@ -135,6 +200,26 @@ class AdminController extends APIController
         return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/admin/user-listing",
+     *     summary="Get user listing",
+     *     tags={"Admin"},
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function userListing(Request $request)
     {
         try {
@@ -149,6 +234,44 @@ class AdminController extends APIController
         }
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/admin/user-edit/{uuid}",
+     *     summary="Edit user details",
+     *     tags={"Admin"},
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"first_name","last_name","email","address","phone_number"},
+     *             @OA\Property(property="first_name", type="string"),
+     *             @OA\Property(property="last_name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="address", type="string"),
+     *             @OA\Property(property="phone_number", type="string"),
+     *             @OA\Property(property="avatar", type="string", format="binary")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User updated successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found"
+     *     )
+     * )
+     */
     public function userEdit(Request $request, $uuid)
     {
         try {
@@ -197,6 +320,32 @@ class AdminController extends APIController
         return response()->json(['message' => 'User updated successfully'], 200);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/admin/user-delete/{uuid}",
+     *     summary="Delete user",
+     *     tags={"Admin"},
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function userDelete($uuid)
     {
         try {

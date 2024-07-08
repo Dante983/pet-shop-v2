@@ -17,6 +17,22 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends APIController
 {
+    /**
+     * @OA\Get(
+     *     path="/api/v1/user",
+     *     summary="Get user profile",
+     *     tags={"User"},
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     )
+     * )
+     */
     public function profile(Request $request)
     {
         $user = $request->user();
@@ -30,6 +46,32 @@ class UserController extends APIController
         return response()->json($userData, 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/user/create",
+     *     summary="Create user",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"first_name","last_name","email","password","password_confirmation"},
+     *             @OA\Property(property="first_name", type="string"),
+     *             @OA\Property(property="last_name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", format="password"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="User account created successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function create(Request $request)
     {
         try {
@@ -89,6 +131,29 @@ class UserController extends APIController
         return response()->json(['message' => 'User account created successfully'], 201);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/user/login",
+     *     summary="Login user",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", format="password")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid credentials"
+     *     )
+     * )
+     */
     public function login(Request $request)
     {
         try {
@@ -142,6 +207,22 @@ class UserController extends APIController
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/user/logout",
+     *     summary="Logout user",
+     *     tags={"User"},
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logged out successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function logout(Request $request)
     {
         try {
@@ -156,6 +237,34 @@ class UserController extends APIController
         return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/user/edit",
+     *     summary="Edit user profile",
+     *     tags={"User"},
+     *     security={{"BearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"first_name","last_name","email","address","phone_number"},
+     *             @OA\Property(property="first_name", type="string"),
+     *             @OA\Property(property="last_name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="address", type="string"),
+     *             @OA\Property(property="phone_number", type="string"),
+     *             @OA\Property(property="avatar", type="string", format="binary")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User account updated successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function edit(Request $request)
     {
         try {
@@ -205,6 +314,22 @@ class UserController extends APIController
         return response()->json(['message' => 'User account updated successfully'], 200);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/user",
+     *     summary="Delete user account",
+     *     tags={"User"},
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="User account deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function delete(Request $request)
     {
         try {
@@ -223,6 +348,28 @@ class UserController extends APIController
         return response()->json(['message' => 'User account deleted successfully'], 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/user/forgot-password",
+     *     summary="Forgot password",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Recovery link generated"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function forgotPassword(Request $request)
     {
         $request->validate([
@@ -236,6 +383,30 @@ class UserController extends APIController
         return response()->json(['recovery_link' => $url, 'message' => 'Recovery link generated.']);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/user/reset-password-token",
+     *     summary="Reset password using token",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"token","password","password_confirmation"},
+     *             @OA\Property(property="token", type="string"),
+     *             @OA\Property(property="password", type="string", format="password"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password reset successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function resetPasswordToken(Request $request)
     {
         $request->validate([

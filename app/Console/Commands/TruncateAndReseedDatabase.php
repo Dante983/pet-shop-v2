@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class TruncateAndReseedDatabase extends Command
 {
@@ -24,41 +24,34 @@ class TruncateAndReseedDatabase extends Command
     protected $description = 'Truncate and re-seed the database';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return int
      */
-    public static function handle()
+    public function handle()
     {
         Log::info('Truncating and re-seeding the database...');
+
+        // Disable foreign key checks to truncate tables
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Truncate all tables
         $tables = DB::select('SHOW TABLES');
         $dbName = 'Tables_in_' . config('database.connections.mysql.database');
-
-        if (!$dbName) {
-            Log::error('Database name not found in environment variables.');
-            return 1;
-        }
-
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         foreach ($tables as $table) {
-            Schema::dropIfExists($table->$dbName);
+            $tableName = $table->$dbName;
+            try {
+                DB::table($tableName)->truncate();
+                Log::info("Truncated table: $tableName");
+            } catch (\Exception $e) {
+                Log::error("Failed to truncate table: $tableName, Error: " . $e->getMessage());
+            }
         }
+
+        // Enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         Log::info('Running migrations...');
-        Artisan::call('migrate');
-
-        Log::info('Running seeders...');
         Artisan::call('db:seed');
 
         Log::info('Database truncated and re-seeded successfully.');

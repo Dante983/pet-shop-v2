@@ -22,10 +22,12 @@ class BrandFactory extends Factory
      */
     public function definition()
     {
+        $brandNames = ['PetLife', 'AnimalCare', 'FurryFriends', 'Pawsome', 'WhiskerWorld'];
+        $brandName = $this->faker->randomElement($brandNames);
         return [
             'uuid' => Str::uuid(),
-            'title' => $this->faker->company,
-            'slug' => $this->faker->slug,
+            'title' => $brandName,
+            'slug' => Str::slug($brandName) . '-' . Str::random(5),
         ];
     }
 }

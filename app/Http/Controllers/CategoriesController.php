@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categories;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CategoriesController extends Controller
 {
@@ -13,7 +15,7 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Categories::all();
         return response()->json($categories);
     }
 
@@ -30,7 +32,7 @@ class CategoriesController extends Controller
             'slug' => 'required|string|max:255|unique:categories,slug',
         ]);
 
-        $category = new Category();
+        $category = new Categories();
         $category->uuid = (string) Str::uuid();
         $category->title = $request->title;
         $category->slug = $request->slug;
@@ -47,7 +49,7 @@ class CategoriesController extends Controller
      */
     public function show($uuid)
     {
-        $category = Category::where('uuid', $uuid)->firstOrFail();
+        $category = Categories::where('uuid', $uuid)->firstOrFail();
         return response()->json($category);
     }
 
@@ -65,7 +67,7 @@ class CategoriesController extends Controller
             'slug' => 'sometimes|required|string|max:255|unique:categories,slug,' . $uuid . ',uuid',
         ]);
 
-        $category = Category::where('uuid', $uuid)->firstOrFail();
+        $category = Categories::where('uuid', $uuid)->firstOrFail();
 
         if ($request->has('title')) {
             $category->title = $request->title;
@@ -87,7 +89,7 @@ class CategoriesController extends Controller
      */
     public function destroy($uuid)
     {
-        $category = Category::where('uuid', $uuid)->firstOrFail();
+        $category = Categories::where('uuid', $uuid)->firstOrFail();
         $category->delete();
 
         return response()->json(null, 204);

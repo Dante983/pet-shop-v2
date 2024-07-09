@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Categories;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -25,14 +26,14 @@ class ProductController extends Controller
             if (isset($metadata->brand)) {
                 $brand = Brand::where('uuid', $metadata->brand)->first();
                 if ($brand) {
-                    $product->brand = $brand->title;
+                    $product->brand_name = $brand->title;
                 }
             }
 
             if (isset($product->category_uuid)) {
                 $category = Categories::where('uuid', $product->category_uuid)->first();
                 if ($category) {
-                    $product->category = $category->title;
+                    $product->category_name = $category->title;
                 }
             }
 
@@ -53,7 +54,7 @@ class ProductController extends Controller
         $request->validate([
             'category_uuid' => 'required|string|exists:categories,uuid',
             'title' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/',
             'description' => 'required|string',
             'metadata' => 'nullable|json',
         ]);

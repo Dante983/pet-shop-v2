@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
@@ -225,6 +226,15 @@ class AdminController extends APIController
         try {
             if ($request->user()->is_admin) {
                 $users = User::where('is_admin', false)->paginate(10);
+                foreach ($users as $user) {
+                    if ($user->avatar) {
+                        $avatar = File::where('uuid', $user->avatar)->first();
+                        $avatar_url = env('APP_URL') . '/storage/' . $avatar->path;
+                        $user->avatar = $avatar_url;
+                    } else {
+                        $avatar_url = null;
+                    }
+                }
                 return response()->json($users, 200);
             } else {
                 return response()->json(['error' => 'Unauthorized'], 403);
@@ -274,13 +284,19 @@ class AdminController extends APIController
      */
     public function userEdit(Request $request, $uuid)
     {
+        if ($request->hasFile('avatar')) {
+            Log::info('Avatar file is included in the request');
+        } else {
+            Log::info('No avatar file in the request');
+        }
+
         try {
             $validatedData = $request->validate([
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255',
                 'address' => 'required|string',
-                'phone_number' => 'required|string|max:15',
+                'phone_number' => 'required|string|max:16',
                 'avatar' => 'nullable|image|max:2048',
             ]);
 
@@ -314,9 +330,9 @@ class AdminController extends APIController
 
             $user->save();
         } catch (\Exception $e) {
+            Log::error('Error updating user:', ['error' => $e->getMessage()]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
-
         return response()->json(['message' => 'User updated successfully'], 200);
     }
 

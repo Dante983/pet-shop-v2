@@ -37,26 +37,32 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('brands')->group(function () {
         Route::get('/', [BrandController::class, 'index']);
-        Route::post('create', [BrandController::class, 'store']);
-        Route::get('{uuid}', [BrandController::class, 'show']);
-        Route::put('{uuid}', [BrandController::class, 'update']);
-        Route::delete('{uuid}', [BrandController::class, 'destroy']);
+        Route::middleware('auth:api')->group(function () {
+            Route::post('create', [BrandController::class, 'store']);
+            Route::get('{uuid}', [BrandController::class, 'show']);
+            Route::put('{uuid}', [BrandController::class, 'update']);
+            Route::delete('{uuid}', [BrandController::class, 'destroy']);
+        });
     });
 
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoriesController::class, 'index']);
-        Route::post('create', [CategoriesController::class, 'store']);
-        Route::get('{uuid}', [CategoriesController::class, 'show']);
-        Route::put('{uuid}', [CategoriesController::class, 'update']);
-        Route::delete('{uuid}', [CategoriesController::class, 'destroy']);
+        Route::middleware('auth:api')->group(function () {
+            Route::post('create', [CategoriesController::class, 'store']);
+            Route::get('{uuid}', [CategoriesController::class, 'show']);
+            Route::put('{uuid}', [CategoriesController::class, 'update']);
+            Route::delete('{uuid}', [CategoriesController::class, 'destroy']);
+        });
     });
 
     Route::prefix('products')->group(function () {
         Route::get('/', [ProductController::class, 'index']);
-        Route::post('create', [ProductController::class, 'store']);
-        Route::get('{uuid}', [ProductController::class, 'show']);
-        Route::put('{uuid}', [ProductController::class, 'update']);
-        Route::delete('{uuid}', [ProductController::class, 'destroy']);
+        Route::middleware('auth:api')->group(function () {
+            Route::post('create', [ProductController::class, 'store']);
+            Route::get('{uuid}', [ProductController::class, 'show']);
+            Route::put('{uuid}', [ProductController::class, 'update']);
+            Route::delete('{uuid}', [ProductController::class, 'destroy']);
+        });
     });
 
     Route::prefix('main')->group(function () {

@@ -3,6 +3,7 @@
 namespace App\Handlers;
 
 use Firebase\JWT\JWT;
+use Illuminate\Support\Facades\App;
 use DateTimeImmutable;
 
 class AuthHandler
@@ -13,6 +14,9 @@ class AuthHandler
     public function GenerateToken($user)
     {
         $secretKey = env('JWT_KEY');
+        if (!$secretKey) {
+            $secretKey = config('app.jwt_key');
+        }
         $tokenId = base64_encode(random_bytes(16));
         $issuedAt = new DateTimeImmutable();
         $expire = $issuedAt->modify('+6 minutes')->getTimestamp();  // Add 60 seconds

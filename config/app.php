@@ -27,6 +27,7 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+    'jwt_key' => env('JWT_KEY', 'your_secret_key'),
 
     /*
     |--------------------------------------------------------------------------

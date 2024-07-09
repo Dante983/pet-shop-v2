@@ -8,13 +8,22 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use OpenApi\Annotations as OA;
 
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the products.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v1/products",
+     *     operationId="getProductsList",
+     *     tags={"Products"},
+     *     summary="Get list of products",
+     *     description="Returns list of products",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *     )
+     * )
      */
     public function index()
     {
@@ -44,10 +53,25 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a newly created product in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/v1/products/create",
+     *     operationId="storeProduct",
+     *     tags={"Products"},
+     *     summary="Store new product",
+     *     description="Stores a new product",
+     *     security={{"BearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Product created successfully",
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -72,10 +96,25 @@ class ProductController extends Controller
     }
 
     /**
-     * Display the specified product.
-     *
-     * @param  string  $uuid
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v1/products/{uuid}",
+     *     operationId="getProductByUuid",
+     *     tags={"Products"},
+     *     summary="Get product information",
+     *     description="Returns product data",
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         description="Product uuid",
+     *         required=true,
+     *         in="path",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *     )
+     * )
      */
     public function show($uuid)
     {
@@ -93,11 +132,36 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified product in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $uuid
-     * @return \Illuminate\Http\Response
+     * @OA\Put(
+     *     path="/api/v1/products/{uuid}",
+     *     operationId="updateProduct",
+     *     tags={"Products"},
+     *     summary="Update existing product",
+     *     description="Updates a product",
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         description="Product uuid",
+     *         required=true,
+     *         in="path",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product updated successfully",
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Product not found"
+     *     )
+     * )
      */
     public function update(Request $request, $uuid)
     {
@@ -133,10 +197,34 @@ class ProductController extends Controller
     }
 
     /**
-     * Remove the specified product from storage.
-     *
-     * @param  string  $uuid
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/v1/products/{uuid}",
+     *     operationId="deleteProduct",
+     *     tags={"Products"},
+     *     summary="Delete existing product",
+     *     description="Deletes a product",
+     *     security={{"BearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         description="Product uuid",
+     *         required=true,
+     *         in="path",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Product deleted successfully",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Product not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
      */
     public function destroy($uuid)
     {
@@ -146,3 +234,40 @@ class ProductController extends Controller
         return response()->json(null, 204);
     }
 }
+
+/**
+ * @OA\Schema(
+ *     schema="Product",
+ *     required={"uuid", "category_uuid", "title", "price", "description"},
+ *     @OA\Property(property="uuid", type="string", example="123e4567-e89b-12d3-a456-426614174000"),
+ *     @OA\Property(property="category_uuid", type="string", example="123e4567-e89b-12d3-a456-426614174000"),
+ *     @OA\Property(property="title", type="string", example="Dog Food"),
+ *     @OA\Property(property="price", type="number", format="float", example=14.99),
+ *     @OA\Property(property="description", type="string", example="Odio rerum ipsum similique aliquid iste."),
+ *     @OA\Property(property="metadata", type="string", example="{\"brand\":\"b2635a08-6447-4025-a0c8-e9c06189d378\",\"image\":\"5e2c1baf-cbf3-4d1d-8aed-c95e03ee00a5\"}")
+ * )
+ */
+
+/**
+ * @OA\Schema(
+ *     schema="StoreProductRequest",
+ *     required={"category_uuid", "title", "price", "description"},
+ *     @OA\Property(property="category_uuid", type="string", example="123e4567-e89b-12d3-a456-426614174000"),
+ *     @OA\Property(property="title", type="string", example="Dog Food"),
+ *     @OA\Property(property="price", type="number", format="float", example=14.99),
+ *     @OA\Property(property="description", type="string", example="Odio rerum ipsum similique aliquid iste."),
+ *     @OA\Property(property="metadata", type="string", example="{\"brand\":\"b2635a08-6447-4025-a0c8-e9c06189d378\",\"image\":\"5e2c1baf-cbf3-4d1d-8aed-c95e03ee00a5\"}")
+ * )
+ */
+
+/**
+ * @OA\Schema(
+ *     schema="UpdateProductRequest",
+ *     required={"category_uuid", "title", "price", "description"},
+ *     @OA\Property(property="category_uuid", type="string", example="123e4567-e89b-12d3-a456-426614174000"),
+ *     @OA\Property(property="title", type="string", example="Dog Food"),
+ *     @OA\Property(property="price", type="number", format="float", example=14.99),
+ *     @OA\Property(property="description", type="string", example="Odio rerum ipsum similique aliquid iste."),
+ *     @OA\Property(property="metadata", type="string", example="{\"brand\":\"b2635a08-6447-4025-a0c8-e9c06189d378\",\"image\":\"5e2c1baf-cbf3-4d1d-8aed-c95e03ee00a5\"}")
+ * )
+ */

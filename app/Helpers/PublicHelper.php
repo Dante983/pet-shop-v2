@@ -36,7 +36,7 @@ class PublicHelper
     public function DecodeRawJWT($jwt)
     {
         // use secret key to decode token
-        $secretKey = env('JWT_KEY');
+        $secretKey = config('app.jwt_key');
         try {
             $token = JWT::decode($jwt, new Key($secretKey, 'HS512'));
             $now = new DateTimeImmutable();

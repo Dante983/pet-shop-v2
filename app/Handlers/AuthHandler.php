@@ -13,10 +13,12 @@ class AuthHandler
     // generate token
     public function GenerateToken($user)
     {
-        $secretKey = env('JWT_KEY');
-        if (!$secretKey) {
-            $secretKey = config('app.jwt_key');
-        }
+        // $secretKey = env('JWT_KEY');
+        $secretKey = config('app.jwt_key');
+        // var_dump($secretKey);
+        // if (!$secretKey) {
+        //
+        // }
         $tokenId = base64_encode(random_bytes(16));
         $issuedAt = new DateTimeImmutable();
         $expire = $issuedAt->modify('+6 minutes')->getTimestamp();  // Add 60 seconds

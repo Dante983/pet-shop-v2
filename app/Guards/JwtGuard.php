@@ -36,7 +36,7 @@ class JwtGuard implements Guard
             return null;
         }
 
-        $secretKey = env('JWT_KEY');
+        $secretKey = config('app.jwt_key');
         try {
             $credentials = JWT::decode($token, new Key($secretKey, 'HS512'));
             $this->user = $this->provider->retrieveById($credentials->data->userID);

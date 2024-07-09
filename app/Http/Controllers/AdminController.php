@@ -259,7 +259,7 @@ class AdminController extends APIController
                 foreach ($users as $user) {
                     if ($user->avatar) {
                         $avatar = File::where('uuid', $user->avatar)->first();
-                        $avatar_url = env('APP_URL') . '/storage/' . $avatar->path;
+                        $avatar_url = config('app.app_url') . '/storage/' . $avatar->path;
                         $user->avatar = $avatar_url;
                     } else {
                         $avatar_url = null;
@@ -328,7 +328,7 @@ class AdminController extends APIController
                 'email' => 'required|string|email|max:255',
                 'address' => 'required|string',
                 'phone_number' => 'required|string|max:16',
-                'avatar' => 'nullable|image|max:2048',
+                'avatar' => 'nullable|',
             ]);
 
             $user = User::where('uuid', $uuid)->first();

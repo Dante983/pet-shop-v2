@@ -28,6 +28,8 @@ return [
 
     'env' => env('APP_ENV', 'production'),
     'jwt_key' => env('JWT_KEY', 'your_secret_key'),
+    'app_url' => env('APP_URL', 'http://localhost'),
+    'vue_app_base_url' => env('VUE_APP_BASE_URL', 'http://localhost:8080'),
 
     /*
     |--------------------------------------------------------------------------

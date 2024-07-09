@@ -555,6 +555,65 @@
                 ]
             }
         },
+        "/api/v1/main/blog": {
+            "get": {
+                "tags": [
+                    "Main"
+                ],
+                "summary": "Get list of blog posts",
+                "description": "Returns list of blog posts",
+                "operationId": "listBlogs",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/api/v1/main/blog/{uuid}": {
+            "get": {
+                "tags": [
+                    "Main"
+                ],
+                "summary": "Get blog post information",
+                "description": "Returns blog post data",
+                "operationId": "showBlog",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "Blog post uuid",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Blog post not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/main/promotions": {
+            "get": {
+                "tags": [
+                    "Main"
+                ],
+                "summary": "Get list of promotions",
+                "description": "Returns list of promotions",
+                "operationId": "listPromotions",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
         "/api/v1/products": {
             "get": {
                 "tags": [
@@ -1028,6 +1087,10 @@
         {
             "name": "Categories",
             "description": "Categories"
+        },
+        {
+            "name": "Main",
+            "description": "Main"
         },
         {
             "name": "Products",

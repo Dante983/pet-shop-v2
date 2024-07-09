@@ -38,7 +38,7 @@ class UserController extends APIController
         $user = $request->user();
 
         $fileRecord = $user->avatar ? File::where('uuid', $user->avatar)->first() : null;
-        $avatarUrl = $fileRecord ? env('APP_URL') . '/storage/' . $fileRecord->path : null;
+        $avatarUrl = $fileRecord ? config('app.app_url') . '/storage/' . $fileRecord->path : null;
 
         $userData = $user->toArray();
         $userData['avatar'] = $avatarUrl;
@@ -177,7 +177,7 @@ class UserController extends APIController
 
             if ($user->avatar) {
                 $avatar = File::where('uuid', $user->avatar)->first();
-                $avatar_url = env('APP_URL') . '/storage/' . $avatar->path;
+                $avatar_url = config('app.app_url') . '/storage/' . $avatar->path;
             } else {
                 $avatar_url = null;
             }
@@ -378,7 +378,7 @@ class UserController extends APIController
 
         $user = User::where('email', $request->email)->first();
         $token = Password::createToken($user);
-        $url = env('VUE_APP_BASE_URL') . '/forgot-password?token=' . $token;
+        $url = config('app.vue_app_base_url') . '/forgot-password?token=' . $token;
 
         return response()->json(['recovery_link' => $url, 'message' => 'Recovery link generated.']);
     }

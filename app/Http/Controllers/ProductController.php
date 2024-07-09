@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Models\Categories;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -17,6 +18,27 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
+
+        $products->transform(function ($product) {
+            $metadata = json_decode($product->metadata);
+
+            if (isset($metadata->brand)) {
+                $brand = Brand::where('uuid', $metadata->brand)->first();
+                if ($brand) {
+                    $product->brand = $brand->title;
+                }
+            }
+
+            if (isset($product->category_uuid)) {
+                $category = Categories::where('uuid', $product->category_uuid)->first();
+                if ($category) {
+                    $product->category = $category->title;
+                }
+            }
+
+            return $product;
+        });
+
         return response()->json($products);
     }
 

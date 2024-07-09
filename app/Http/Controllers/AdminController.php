@@ -225,7 +225,37 @@ class AdminController extends APIController
     {
         try {
             if ($request->user()->is_admin) {
-                $users = User::where('is_admin', false)->paginate(10);
+                $query = User::where('is_admin', false);
+
+                if ($request->has('name')) {
+                    $query->where(function ($q) use ($request) {
+                        $q
+                            ->where('first_name', 'like', '%' . $request->name . '%')
+                            ->orWhere('last_name', 'like', '%' . $request->name . '%');
+                    });
+                }
+
+                if ($request->has('email')) {
+                    $query->where('email', 'like', '%' . $request->email . '%');
+                }
+
+                if ($request->has('phone')) {
+                    $query->where('phone_number', 'like', '%' . $request->phone . '%');
+                }
+
+                if ($request->has('address')) {
+                    $query->where('address', 'like', '%' . $request->address . '%');
+                }
+
+                if ($request->has('date_created')) {
+                    $query->whereDate('created_at', $request->date_created);
+                }
+
+                if ($request->has('marketing_preferences')) {
+                    $query->where('is_marketing', $request->marketing_preferences === 'yes');
+                }
+
+                $users = $query->paginate(10);
                 foreach ($users as $user) {
                     if ($user->avatar) {
                         $avatar = File::where('uuid', $user->avatar)->first();
@@ -235,6 +265,7 @@ class AdminController extends APIController
                         $avatar_url = null;
                     }
                 }
+
                 return response()->json($users, 200);
             } else {
                 return response()->json(['error' => 'Unauthorized'], 403);

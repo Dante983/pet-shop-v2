@@ -29,11 +29,21 @@ class ProductFactory extends Factory
 
         // Fetch a random category, brand, and file
         $category = Categories::inRandomOrder()->first();
+        if (!$category) {
+            $category = Categories::factory()->create();
+        }
         $brand = Brand::inRandomOrder()->first();
+        if (!$brand) {
+            $brand = Brand::factory()->create();
+        }
         $file = File::inRandomOrder()->first();
+        if (!$file) {
+            $file = File::factory()->create();
+        }
+        $uuid = (string) Str::uuid();
 
         return [
-            'uuid' => (string) Str::uuid(),
+            'uuid' => $uuid,
             'category_uuid' => $category->uuid,
             'title' => $this->faker->randomElement($productNames),
             'price' => $this->faker->randomFloat(2, 1, 100),

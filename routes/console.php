@@ -34,4 +34,4 @@ Artisan::command('database:truncate-reseed', function () {
     Artisan::call('db:seed');
 
     $this->info('Database truncated and re-seeded successfully.');
-})->purpose('Truncate and re-seed the database')->everyMinute();
+})->purpose('Truncate and re-seed the database')->daily();

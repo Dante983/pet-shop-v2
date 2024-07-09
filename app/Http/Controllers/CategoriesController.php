@@ -5,13 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use OpenApi\Annotations as OA;
 
 class CategoriesController extends Controller
 {
     /**
-     * Display a listing of the categories.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *      path="/api/v1/categories",
+     *      operationId="getCategoriesList",
+     *      tags={"Categories"},
+     *      summary="Get list of categories",
+     *      description="Returns list of categories",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       )
+     * )
      */
     public function index()
     {
@@ -20,10 +29,21 @@ class CategoriesController extends Controller
     }
 
     /**
-     * Store a newly created category in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *      path="/api/v1/categories/create",
+     *      operationId="storeCategory",
+     *      tags={"Categories"},
+     *      summary="Store new category",
+     *      description="Stores a new category",
+     *      security={{"BearerAuth":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *       )
+     * )
      */
     public function store(Request $request)
     {
@@ -42,10 +62,25 @@ class CategoriesController extends Controller
     }
 
     /**
-     * Display the specified category.
-     *
-     * @param  string  $uuid
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *      path="/api/v1/categories/{uuid}",
+     *      operationId="getCategoryByUuid",
+     *      tags={"Categories"},
+     *      summary="Get category information",
+     *      description="Returns category data",
+     *      security={{"BearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          description="Category uuid",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       )
+     * )
      */
     public function show($uuid)
     {
@@ -54,11 +89,28 @@ class CategoriesController extends Controller
     }
 
     /**
-     * Update the specified category in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $uuid
-     * @return \Illuminate\Http\Response
+     * @OA\Put(
+     *      path="/api/v1/categories/{uuid}",
+     *      operationId="updateCategory",
+     *      tags={"Categories"},
+     *      summary="Update existing category",
+     *      description="Updates a category",
+     *      security={{"BearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          description="Category uuid",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       )
+     * )
      */
     public function update(Request $request, $uuid)
     {
@@ -82,10 +134,26 @@ class CategoriesController extends Controller
     }
 
     /**
-     * Remove the specified category from storage.
-     *
-     * @param  string  $uuid
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *      path="/api/v1/categories/{uuid}",
+     *      operationId="deleteCategory",
+     *      tags={"Categories"},
+     *      summary="Delete existing category",
+     *      description="Deletes a category",
+     *      security={{"BearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          description="Category uuid",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="Successful operation",
+     *          @OA\JsonContent()
+     *       )
+     * )
      */
     public function destroy($uuid)
     {
@@ -95,3 +163,31 @@ class CategoriesController extends Controller
         return response()->json(null, 204);
     }
 }
+
+/**
+ * @OA\Schema(
+ *      schema="Categories",
+ *      required={"uuid", "title", "slug"},
+ *      @OA\Property(property="uuid", type="string", example="123e4567-e89b-12d3-a456-426614174000"),
+ *      @OA\Property(property="title", type="string", example="Dog Food"),
+ *      @OA\Property(property="slug", type="string", example="dog-food"),
+ * )
+ */
+
+/**
+ * @OA\Schema(
+ *      schema="StoreCategoryRequest",
+ *      required={"title", "slug"},
+ *      @OA\Property(property="title", type="string", example="Dog Food"),
+ *      @OA\Property(property="slug", type="string", example="dog-food"),
+ * )
+ */
+
+/**
+ * @OA\Schema(
+ *      schema="UpdateCategoryRequest",
+ *      required={"title", "slug"},
+ *      @OA\Property(property="title", type="string", example="Dog Food"),
+ *      @OA\Property(property="slug", type="string", example="dog-food"),
+ * )
+ */

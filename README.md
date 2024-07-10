@@ -31,6 +31,9 @@ chmod -R 777 bootstrap/cache
 php artisan test
 
 ### API Documentation
+```
+- composer require darkaonline/l5-swagger
+- php artisan l5-swagger:generate
+```
 
-composer require darkaonline/l5-swagger
-php artisan l5-swagger:generate
+Also be sure to download the frontend part at https://github.com/Dante983/pet-shop-ui
